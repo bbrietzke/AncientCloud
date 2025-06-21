@@ -9,7 +9,7 @@ public interface IEventStore
     void RegisterProjection(IProjection projection);
 
     Task AppendEvents<TStream>(
-        Guid streamId, IEnumerable<object> @events, long? expectedVersion, CancellationToken ct = default
+        Guid streamId, IEnumerable<object> @events, long expectedVersion, CancellationToken ct = default
     ) where TStream : notnull;
 
     Task<IReadOnlyCollection<object>> GetEventsAsync(

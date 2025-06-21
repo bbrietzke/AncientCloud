@@ -18,6 +18,16 @@ public class Invoice
     public long Version { get; set; }
     public InvoiceStatus Status { get; set; }
 
+    public static Invoice Evolve(Invoice inv, IEnumerable<object> events)
+    {
+        foreach (var @event in @events)
+        {
+            inv = Invoice.Evolve(inv, @event);
+        }
+
+        return inv;
+    }
+
     public static Invoice Evolve(Invoice invoice, object @event)
     {
         return @event switch

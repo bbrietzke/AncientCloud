@@ -3,7 +3,6 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using AncientCloud.EventStore.Tests.Invoices;
 using Microsoft.Data.Sqlite;
-using AncientCloud.EventStore.Tests.Invoices;
 
 
 namespace AncientCloud.EventStore.Tests;
@@ -33,7 +32,7 @@ public class ProjectionTests
             };
 
             await store.AppendEvents<Invoice>(
-                invoiceId, new object[] { newInvoice }, null
+                invoiceId, new object[] { newInvoice }, 0
             );
 
             Assert.IsTrue(mock.InitSatified);

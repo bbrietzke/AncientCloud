@@ -6,6 +6,7 @@ using System.Transactions;
 using Microsoft.VisualBasic;
 
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace AncientCloud.EventStore;
 
@@ -44,34 +45,40 @@ public sealed class EventStore : IEventStore
         }
     }
 
-    public Task AppendEvents<TStream>(Guid streamId, IEnumerable<object> events, long? expectedVersion, CancellationToken ct = default) where TStream : notnull
+    public Task AppendEvents<TStream>(Guid streamId, IEnumerable<object> events, long expectedVersion, CancellationToken ct = default) where TStream : notnull
     {
         return Task.Factory.StartNew(async () =>
         {
             using (DbTransaction trx = this._connection.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
-                foreach (var @event in events)
+                foreach(var @event in events)
                 {
                     DbCommand cmd = this._connection.CreateCommand();
                     cmd.CommandType = CommandType.Text;
                     string cmdTxt = String.Format(
-                        this.createAppendFunction,
-                        streamId,
-                        typeof(TStream).AssemblyQualifiedName,
-                        Guid.NewGuid(),
-                        @event.GetType().AssemblyQualifiedName,
-                        expectedVersion.GetValueOrDefault(),
-                        JsonConvert.SerializeObject(@event)
-                    );
-
+                                        this.createAppendFunction,
+                                        streamId,
+                                        typeof(TStream).AssemblyQualifiedName,
+                                        Guid.NewGuid(),
+                                        @event.GetType().AssemblyQualifiedName,
+                                        expectedVersion++,
+                                        JsonConvert.SerializeObject(@event)
+                                    );
+                    Console.WriteLine(cmdTxt);
                     cmd.CommandText = cmdTxt;
-
-                    cmd.ExecuteNonQuery();
+                    int records = cmd.ExecuteNonQuery();
 
                     await this.ApplyProjections(@event, ct);
                 }
 
-                trx.Commit();
+                if (ct.IsCancellationRequested)
+                {
+                    trx.Rollback();
+                }
+                else
+                {
+                    trx.Commit();
+                }
             }
         });
     }
@@ -117,7 +124,6 @@ public sealed class EventStore : IEventStore
     }
 
     private readonly string createAppendFunction = @"
-        PRAGMA temp_store = 2;
         WITH CURRENT AS (
             SELECT CASE WHEN 
                 EXISTS (
@@ -143,4 +149,6 @@ public sealed class EventStore : IEventStore
         ); 
     ";
 } 
+
+
 

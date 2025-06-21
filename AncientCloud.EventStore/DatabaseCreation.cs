@@ -15,8 +15,7 @@ public sealed class DatabaseCreation
             Type        TEXT        NOT NULL,
             Version     INT         NOT NULL,
             CreatedOn   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(StreamId) REFERENCES Streams(Id),
-            CONSTRAINT event_stream_version UNIQUE(StreamId, Version)
+            FOREIGN KEY(StreamId) REFERENCES Streams(Id)
         );";
     private readonly string _eventStreamsSQL =
         @"CREATE TABLE IF NOT EXISTS Streams(
