@@ -13,45 +13,53 @@ public class EventStoreTests
     [TestMethod]
     public async Task DoSomethingManyTimes()
     {
-        using (DbConnection con = new SqliteConnection("Data Source='/tmp/doSomethingManyTimes.sqlite3'"))
+        using (DbConnection con = new SqliteConnection("Data Source=:memory:"))
         {
             con.Open();
             IEventStore store = new EventStore(con);
             store.Init();
 
             Guid id = Guid.NewGuid();
+            long version = await store.GetCurrentVersionById(id);
 
             InvoiceCreated newInvoice = new InvoiceCreated
             {
                 InvoiceId = id,
                 Name = "Customer One",
                 Amount = 1000M,
-                Version = 0,
+                Version = version++,
             };
 
             AdjustInvoiceAmount adjustment = new AdjustInvoiceAmount
             {
                 AdjustBy = 200M,
                 InvoiceId = id,
-                Version = 1,
+                Version = version++,
             };
 
             AdjustInvoiceAmount adjustment2 = new AdjustInvoiceAmount
             {
                 AdjustBy = 300M,
                 InvoiceId = id,
-                Version = 2,
+                Version = version++,
+            };
+
+            InvoiceBilled billed = new InvoiceBilled
+            {
+                InvoiceId = id,
+                Version = version++,
             };
 
             await store.AppendEvents<Invoice>(
-                id, new object[] { newInvoice, adjustment, adjustment2 }, 0
+                id, new object[] { newInvoice, adjustment, adjustment2, billed }, version
             );
 
             var events = await store.GetEventsAsync(id);
             Invoice inv = Invoice.Evolve(new Invoice(), events);
 
-            Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(4, events.Count);
             Assert.AreEqual(1500M, inv.Amount);
+            Assert.AreEqual(3, inv.Version);
         }
     }
 

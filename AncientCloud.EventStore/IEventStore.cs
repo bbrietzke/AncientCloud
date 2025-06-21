@@ -15,4 +15,6 @@ public interface IEventStore
     Task<IReadOnlyCollection<object>> GetEventsAsync(
         Guid streamId, long? atVersion = null, DateTime? atTimestamp = null, CancellationToken ct = default
     );
+
+    Task<long> GetCurrentVersionById(Guid streamId);
 }

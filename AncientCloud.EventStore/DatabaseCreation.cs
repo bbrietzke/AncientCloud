@@ -13,7 +13,7 @@ public sealed class DatabaseCreation
             Data        BLOB        NOT NULL,
             StreamId    UUID        NOT NULL,
             Type        TEXT        NOT NULL,
-            Version     INT         NOT NULL,
+            Version     BIGINT      NOT NULL,
             CreatedOn   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(StreamId) REFERENCES Streams(Id)
         );";

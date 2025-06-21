@@ -45,6 +45,24 @@ public sealed class EventStore : IEventStore
         }
     }
 
+    public Task<long> GetCurrentVersionById(Guid streamId)
+    {
+        return Task.Factory.StartNew<long>(() =>
+        {
+            DbCommand cmd = this._connection.CreateCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = "SELECT COALESCE(MAX(Version), 0) FROM Streams WHERE Id = @Id;";
+            DbParameter param = cmd.CreateParameter();
+            param.ParameterName = "@Id";
+            param.Value = streamId;
+            cmd.Parameters.Add(param);
+
+            long version = (long)cmd.ExecuteScalar();
+
+            return version;
+        });
+    }
+
     public Task AppendEvents<TStream>(Guid streamId, IEnumerable<object> events, long expectedVersion, CancellationToken ct = default) where TStream : notnull
     {
         return Task.Factory.StartNew(async () =>
