@@ -10,14 +10,14 @@ pipeline {
                     dotnet restore
                 '''
                 bat '''
-                    dotnet build --no-restore'
+                    dotnet build --no-restore
                 '''
             }
         }
         stage('Test') {
             steps {
                 bat '''
-                    dotnet test --no-build'
+                    dotnet test --no-build
                 '''
             }
         }
