@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        PATH = "C:\Program Files\dotnet\;${env.PATH}"
+        PATH = "C:\\Program Files\\dotnet\\;${env.PATH}"
     }
     stages {
         stage('Build') {
