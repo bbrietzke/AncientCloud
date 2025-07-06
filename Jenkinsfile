@@ -9,12 +9,17 @@ pipeline {
                 bat '''
                     dotnet restore
                 '''
-                sh 'dotnet build --no-restore'
+                bat '''
+                    dotnet build --no-restore'
+                '''
             }
         }
         stage('Test') {
             steps {
-                sh 'dotnet test --no-build'
+                bat 
+                    '''
+                    dotnet test --no-build'
+                '''
             }
         }
     }
