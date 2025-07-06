@@ -12,7 +12,7 @@ public sealed class EventStoreSchemaTests
     [TestMethod]
     public void TablesAreCreated()
     {
-        using SqliteConnection con = new SqliteConnection("Data Source=/tmp/schema_test.sqlite3");
+        using SqliteConnection con = new SqliteConnection("Data Source=:memory:");
         con.Open();
         IEventStore store = new EventStore(con);
         store.Init();
