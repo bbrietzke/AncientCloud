@@ -16,8 +16,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                bat 
-                    '''
+                bat '''
                     dotnet test --no-build'
                 '''
             }
